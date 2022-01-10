@@ -1,0 +1,149 @@
+{
+  "name": "vscode-grc",
+  "displayName": "vscode-grc",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.63.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:vscode-grc.helloWorld",
+    "onView:nodeDependencies",
+    "onView:testView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-grc.helloWorld",
+        "title": "Hello Worlde"
+      },
+      {
+        "command": "testView.changeTitle",
+        "title": "Test View: Change Title"
+      },
+      {
+        "command": "testView.addEntry",
+        "title": "Add"
+      },
+      {
+        "command": "testView2.addEntry",
+        "title": "Add"
+      },
+      {
+        "command": "testView.editEntry",
+        "title": "Edit",
+        "icon": {
+          "light": "resources/light/edit.svg",
+          "dark": "resources/dark/edit.svg"
+        }
+      },
+      {
+        "command": "testView.deleteEntry",
+        "title": "Delete"
+      },
+      {
+        "command": "testView.refresh",
+        "title": "Refresh",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "testView.openFtpResource",
+        "title": "Open FTP Resource"
+      },
+      {
+        "command": "testView.revealResource",
+        "title": "Reveal in FTP View"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "testView.revealResource"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "testView.addEntry",
+          "when": "view == testView",
+          "group": "navigation"
+        },
+        {
+          "command": "testView.addEntry",
+          "when": "view == testView"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "testView.editEntry",
+          "when": "view == testView",
+          "group": "inline"
+        },
+        {
+          "command": "testView.deleteEntry",
+          "when": "view == testView"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "remote-control",
+          "title": "Graal RC",
+          "icon": "resources/rcicon.svg"
+        }
+      ]
+    },
+    "views": {
+      "remote-control": [
+        {
+          "id": "testView2",
+          "name": "Serverlist",
+          "icon": "resources/rcicon.svg"
+        },
+        {
+          "id": "testView",
+          "name": "RC (Disconnected)",
+          "icon": "resources/rcicon.svg"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "testView2",
+        "contents": "No node dependencies found [learn more](https://www.npmjs.com/).\n[Add Dependency](command:testView2.addEntry)"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "14.x",
+    "@types/vscode": "^1.63.0",
+    "@typescript-eslint/eslint-plugin": "^5.1.0",
+    "@typescript-eslint/parser": "^5.1.0",
+    "@vscode/test-electron": "^1.6.2",
+    "eslint": "^8.1.0",
+    "glob": "^7.1.7",
+    "mocha": "^9.1.3",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "@xtjoeytx/node-grc": "^1.0.0",
+    "graal-grc": "github:xtjoeytx/node-grc"
+  }
+}
