@@ -104,6 +104,20 @@ class FileBrowserRoute implements types.RouteController {
             return req.context.rcSession?.FileBrowser.get(baseName);
         });
     }
+
+	putRequest?(req: HandlerReq, content: Uint8Array): void
+    {
+        const ext = path.extname(req.params.path);
+        
+        if (textEditorExtensions.indexOf(ext) >= 0) {
+            const directoryPath = path.dirname(req.params.path);
+            const baseName = path.basename(req.params.path);
+    
+            req.context.rcSession?.FileBrowser.cd(directoryPath).then(v => {
+                req.context.rcSession?.FileBrowser.put(baseName, Buffer.from(content));
+            });
+        }
+    }
 }
 
 export default new FileBrowserRoute;

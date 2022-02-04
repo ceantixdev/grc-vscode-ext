@@ -95,7 +95,8 @@ class ConfigIndexRoute implements types.RouteController {
             }
 
             case UriConstants.NpcLevelList: {
-                return req.context.rcSession?.NpcControl?.updateLevelList(content.toString());
+                // cant overwrite
+                return;
             }
         }
     }
