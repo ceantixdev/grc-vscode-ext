@@ -1,8 +1,9 @@
 {
   "name": "vscode-grc",
-  "displayName": "vscode-grc",
-  "description": "",
-  "version": "0.0.1",
+  "displayName": "Graal Remote Control",
+  "description": "Graal Reborn Remote Control built into VSCode",
+  "publisher": "DevJoey",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.63.0"
   },
@@ -10,43 +11,58 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-grc.helloWorld",
-    "onView:nodeDependencies",
-    "onView:testView"
+    "onFileSystem:grcfs",
+    "onView:serverExplorerView",
+    "onView:serverListView"
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Graal RC",
+      "properties": {
+        "graalRC.login.Nickname": {
+          "type": "string",
+          "default": "",
+          "description": "User nickname, when empty - defaults to your account name",
+          "order": 1
+        },
+        "graalRC.login.Account": {
+          "type": "string",
+          "default": "",
+          "description": "Account Name",
+          "order": 2
+        },
+        "graalRC.login.Password": {
+          "type": "string",
+          "default": "",
+          "description": "Password",
+          "order": 3
+        },
+        "graalRC.listServer.Address": {
+          "type": "string",
+          "default": "listserver.graal.in",
+          "description": "Listserver Address",
+          "order": 4
+        },
+        "graalRC.listServer.Port": {
+          "type": "number",
+          "default": 14922,
+          "description": "Listserver Port",
+          "order": 5
+        }
+      }
+    },
     "commands": [
       {
-        "command": "vscode-grc.helloWorld",
-        "title": "Hello Worlde"
+        "command": "serverExplorerView.openResource",
+        "title": "Open Resource"
       },
       {
-        "command": "testView.changeTitle",
-        "title": "Test View: Change Title"
+        "command": "serverExplorerView.revealResource",
+        "title": "Reveal"
       },
       {
-        "command": "testView.addEntry",
-        "title": "Add"
-      },
-      {
-        "command": "testView2.addEntry",
-        "title": "Add"
-      },
-      {
-        "command": "testView.editEntry",
-        "title": "Edit",
-        "icon": {
-          "light": "resources/light/edit.svg",
-          "dark": "resources/dark/edit.svg"
-        }
-      },
-      {
-        "command": "testView.deleteEntry",
-        "title": "Delete"
-      },
-      {
-        "command": "testView.refresh",
+        "command": "serverExplorerView.refresh",
         "title": "Refresh",
         "icon": {
           "light": "resources/light/refresh.svg",
@@ -54,40 +70,118 @@
         }
       },
       {
-        "command": "testView.openFtpResource",
-        "title": "Open FTP Resource"
+        "command": "serverListView.connect",
+        "title": "Connect to Server"
       },
       {
-        "command": "testView.revealResource",
-        "title": "Reveal in FTP View"
+        "command": "serverListView.refresh",
+        "title": "Refresh",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "serverExplorerView.deleteEntry",
+        "title": "Delete"
+      },
+      {
+        "command": "serverExplorerView.viewNpc",
+        "title": "View Attributes",
+        "icon": {
+          "light": "resources/light/document.svg",
+          "dark": "resources/dark/document.svg"
+        }
+      },
+      {
+        "command": "serverExplorerView.editScript",
+        "title": "Edit Script",
+        "icon": {
+          "light": "resources/light/edit.svg",
+          "dark": "resources/dark/edit.svg"
+        }
+      },
+      {
+        "command": "serverExplorerView.editFlags",
+        "title": "Edit Flags",
+        "icon": {
+          "light": "resources/light/edit.svg",
+          "dark": "resources/dark/edit.svg"
+        }
+      },
+      {
+        "command": "serverExplorerView.resetNpc",
+        "title": "Reset"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "testView.revealResource"
+          "command": "serverExplorerView.revealResource"
         }
       ],
       "view/title": [
         {
-          "command": "testView.addEntry",
-          "when": "view == testView",
+          "command": "serverListView.refresh",
+          "when": "view == serverListView",
           "group": "navigation"
         },
         {
-          "command": "testView.addEntry",
-          "when": "view == testView"
+          "command": "serverExplorerView.refresh",
+          "when": "view == serverExplorerView",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "testView.editEntry",
-          "when": "view == testView",
-          "group": "inline"
+          "command": "serverExplorerView.viewNpc",
+          "when": "view == serverExplorerView && viewItem == npcs",
+          "group": "0_viewnpc@0"
         },
         {
-          "command": "testView.deleteEntry",
-          "when": "view == testView"
+          "command": "serverExplorerView.editScript",
+          "when": "view == serverExplorerView && viewItem == npcs",
+          "group": "0_viewnpc@1"
+        },
+        {
+          "command": "serverExplorerView.editFlags",
+          "when": "view == serverExplorerView && viewItem == npcs",
+          "group": "0_viewnpc@2"
+        },
+        {
+          "command": "serverExplorerView.resetNpc",
+          "when": "view == serverExplorerView && viewItem == npcs",
+          "group": "1_viewnpc@0"
+        },
+        {
+          "command": "serverExplorerView.deleteEntry",
+          "when": "view == serverExplorerView && viewItem == npcs",
+          "group": "1_viewnpc@1"
+        },
+        {
+          "command": "serverExplorerView.editScript",
+          "when": "view == serverExplorerView && viewItem == weapons",
+          "group": "0_viewwep@0"
+        },
+        {
+          "command": "serverExplorerView.deleteEntry",
+          "when": "view == serverExplorerView && viewItem == weapons",
+          "group": "0_viewwep@1"
+        },
+        {
+          "command": "serverExplorerView.editScript",
+          "when": "view == serverExplorerView && viewItem == scripts",
+          "group": "0_viewscript@0"
+        },
+        {
+          "command": "serverExplorerView.deleteEntry",
+          "when": "view == serverExplorerView && viewItem == scripts",
+          "group": "0_viewscript@1"
+        },
+        {
+          "command": "serverExplorerView.refresh",
+          "when": "view == serverExplorerView",
+          "group": "inline"
         }
       ]
     },
@@ -103,21 +197,19 @@
     "views": {
       "remote-control": [
         {
-          "id": "testView2",
-          "name": "Serverlist",
-          "icon": "resources/rcicon.svg"
+          "id": "serverListView",
+          "name": "Serverlist"
         },
         {
-          "id": "testView",
-          "name": "RC (Disconnected)",
-          "icon": "resources/rcicon.svg"
+          "id": "serverExplorerView",
+          "name": "RC (Disconnected)"
         }
       ]
     },
     "viewsWelcome": [
       {
-        "view": "testView2",
-        "contents": "No node dependencies found [learn more](https://www.npmjs.com/).\n[Add Dependency](command:testView2.addEntry)"
+        "view": "serverListView",
+        "contents": "Could not connect to the serverlist, check your settings and make sure your login credentials are correct."
       }
     ]
   },
@@ -137,13 +229,14 @@
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
     "@vscode/test-electron": "^1.6.2",
+    "esbuild": "^0.14.11",
     "eslint": "^8.1.0",
     "glob": "^7.1.7",
     "mocha": "^9.1.3",
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "@xtjoeytx/node-grc": "^1.0.0",
-    "graal-grc": "github:xtjoeytx/node-grc"
+    "@xtjoeytx/node-grc": "^1.0.6",
+    "tiny-request-router": "^1.2.2"
   }
 }

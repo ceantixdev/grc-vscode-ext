@@ -1,65 +1,62 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { FtpExplorer } from './gprovider';
-
-import { Serverlist } from '@xtjoeytx/node-grc';
-
-let cfg = {
-	host: "localhost",
-	account: "",
-	password: ""
-};
+import { VSCodeContext } from './VSCodeContext';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	Serverlist.request(cfg).then((servers) => {
-		console.log("Req server cb");
-		console.log(servers);
-
-		if (servers.length > 0)
-		{
-			// RemoteControl.connect(cfg, servers[0]);
-			// new RemoteControl(cfg, servers[0]);
-		}
-		else {
-			console.log("No servers received");
-		}
-		
-	}, (err) => {
-		console.log("failed promise?", err);
-	});
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "vscode-grc" is now active!');
-
 	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-		
-	vscode.commands.registerCommand('testView2.addEntry', async () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Add entry!!!');
-		
-		const input = await vscode.window.showInputBox();
-		vscode.window.showInformationMessage(input || "unknown");
+
+	// Get configuration
+	const vsConfig = vscode.workspace.getConfiguration();
+
+	// Instantiates all additional components related to the extension
+	const vsExtContext = new VSCodeContext(context, {
+		host: vsConfig.get<string>('graalRC.listServer.Address', "listserver.graal.in"),
+		port: vsConfig.get<number>('graalRC.listServer.Port', 14922),
+		account: vsConfig.get<string>('graalRC.login.Account', ""),
+		password: vsConfig.get<string>('graalRC.login.Password', ""),
+		nickname: vsConfig.get<string>('graalRC.login.Nickname', "")
 	});
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('vscode-grc.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from vscode-grc!');
-	});
+	// Watch for configuration changes
+	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
+		let listServerConfigChanged = false;
 
-	new FtpExplorer(context);
+		if (e.affectsConfiguration('graalRC.listServer.Address')) {
+			vsExtContext.config.host = vscode.workspace.getConfiguration().get<string>("graalRC.listServer.Address") || vsExtContext.config.host;
+			listServerConfigChanged = true;
+		}
 
-	context.subscriptions.push(disposable);
+		if (e.affectsConfiguration('graalRC.listServer.Port')) {
+			vsExtContext.config.port = vscode.workspace.getConfiguration().get<number>("graalRC.listServer.Port") || vsExtContext.config.port;
+			listServerConfigChanged = true;
+		}
+
+		if (e.affectsConfiguration('graalRC.login.Account')) {
+			vsExtContext.config.account = vscode.workspace.getConfiguration().get<string>("graalRC.login.Account") || vsExtContext.config.account;
+			listServerConfigChanged = true;
+		}
+
+		if (e.affectsConfiguration('graalRC.login.Password')) {
+			vsExtContext.config.password = vscode.workspace.getConfiguration().get<string>("graalRC.login.Password") || vsExtContext.config.password;
+			listServerConfigChanged = true;
+		}
+
+		if (e.affectsConfiguration('graalRC.login.Nickname')) {
+			vsExtContext.config.nickname = vscode.workspace.getConfiguration().get<string>("graalRC.login.Nickname") || vsExtContext.config.account;
+			vsExtContext.rcInstance?.setNickName(vsExtContext.config.nickname);
+		}
+
+		if (listServerConfigChanged) {
+			vscode.commands.executeCommand("serverListView.refresh");
+		}
+	}));
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+
+}
