@@ -4,7 +4,7 @@ import { VSCodeContext } from "../VSCodeContext";
 import { ServerlistNode } from "./ServerListNode";
 import { ServerListProvider, ServerListView } from './ServerListView';
 
-export class ServerListContext implements ServerListProvider {
+export class ServerList implements ServerListProvider {
 	private serverListView: ServerListView;
 
 	constructor(private readonly context: VSCodeContext) {
@@ -13,8 +13,8 @@ export class ServerListContext implements ServerListProvider {
 
 	connectToServer(server: grc.ServerEntry): void {
 		let confirmMsg = `Please confirm connecting to ${server.name}.`;
-		if (this.context.rcInstance) {
-			confirmMsg += ` This will disconnect you from your current session on ${this.context.rcInstance.server.name}`;
+		if (this.context.rcSession) {
+			confirmMsg += ` This will disconnect you from your current session on ${this.context.rcSession.server.name}`;
 		}
 
 		vscode.window.showInformationMessage(confirmMsg, ...["Yes", "No"])
@@ -41,7 +41,7 @@ export class ServerListContext implements ServerListProvider {
 
 			return serverListData.filter((v: ServerlistNode) => v.children && v.children.length > 0);
 		}, (err) => {
-			console.log("Error: ", err);
+			console.log("Error fetching serverlist: ", err);
 			return [];
 		});
 	}

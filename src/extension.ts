@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		if (e.affectsConfiguration('graalRC.login.Nickname')) {
 			vsExtContext.config.nickname = vscode.workspace.getConfiguration().get<string>("graalRC.login.Nickname") || vsExtContext.config.account;
-			vsExtContext.rcInstance?.setNickName(vsExtContext.config.nickname);
+			vsExtContext.rcSession?.setNickName(vsExtContext.config.nickname);
 		}
 
 		if (listServerConfigChanged) {

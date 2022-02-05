@@ -63,8 +63,8 @@ class ServerListTreeDataProvider implements vscode.TreeDataProvider<ServerlistNo
 				title: 'Connect to server'
 			},
 			iconPath: ( !element.children || element.children.length === 0 ? {
-				light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'shiny-coin2.svg'),
-				dark: path.join(__filename, '..', '..', '..', 'resources', 'light', 'shiny-coin2.svg')
+				light: path.join(__filename, '..', '..', '..', '..', 'resources', 'light', 'shiny-coin2.svg'),
+				dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'light', 'shiny-coin2.svg')
 			} : undefined)
 		};
 	}

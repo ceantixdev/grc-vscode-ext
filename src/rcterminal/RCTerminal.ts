@@ -1,10 +1,10 @@
 import { VSCodeContext } from "../VSCodeContext";
 import { RCTerminalEvents, RCTerminalView } from "./RCTerminalView";
 
-export class RCTerminalContext implements RCTerminalEvents {
+export class RCTerminal implements RCTerminalEvents {
 	private terminalView?: RCTerminalView;
 	private buffered: string[] = [];
-
+	
 	constructor(private readonly context: VSCodeContext) {
 
 	}
@@ -46,7 +46,7 @@ export class RCTerminalContext implements RCTerminalEvents {
 	}
 	
 	onTerminalInput(text: string): void {
-		this.context.rcInstance?.sendRCChat(text);
+		this.context.rcSession?.sendRCChat(text);
 	}
 
 	onTerminalClosed(): void {

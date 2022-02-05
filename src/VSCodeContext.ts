@@ -1,8 +1,8 @@
 import * as grc from '@xtjoeytx/node-grc';
 import * as vscode from 'vscode';
-import { RCTerminalContext } from './rcterminal/RCTerminalContext';
-import { ServerExplorerContext } from './explorer/ServerExplorerContext';
-import { ServerListContext } from './serverlist/ServerListContext';
+import { RCTerminal } from './rcterminal/RCTerminal';
+import { ServerExplorer } from './explorer/ServerExplorer';
+import { ServerList } from './serverlist/ServerList';
 
 const defaultConfig: grc.ServerlistConfig = {
 	host: "listserver.graal.in",
@@ -14,21 +14,25 @@ const defaultConfig: grc.ServerlistConfig = {
 
 export class VSCodeContext implements grc.RemoteControlEvents {
 	public readonly vsContext: vscode.ExtensionContext;
-	public config: grc.ServerlistConfig;
+	public readonly config: grc.ServerlistConfig;
 
-	public readonly rcTerminal: RCTerminalContext;
-	public readonly serverList: ServerListContext;
-	public readonly serverExplorer: ServerExplorerContext;
+	public readonly rcTerminal: RCTerminal;
+	public readonly serverList: ServerList;
+	public readonly serverExplorer: ServerExplorer;
 
-	public rcInstance?: grc.RemoteControl;
+	private rcInstance?: grc.RemoteControl;
+
+	public get rcSession(): grc.RemoteControl | undefined {
+		return this.rcInstance;
+	}
 
 	constructor(context: vscode.ExtensionContext, config: Partial<grc.ServerlistConfig>) {
 		this.vsContext = context;
 		this.config = { ...defaultConfig, ...config };
 
-		this.rcTerminal = new RCTerminalContext(this);
-		this.serverList = new ServerListContext(this);
-		this.serverExplorer = new ServerExplorerContext(this);
+		this.rcTerminal = new RCTerminal(this);
+		this.serverList = new ServerList(this);
+		this.serverExplorer = new ServerExplorer(this);
 	}
 
 	public connectRemoteControl(server: grc.ServerEntry): void {
@@ -45,7 +49,6 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 		if (this.rcInstance) {
 			this.rcInstance.disconnect();
 			this.rcInstance = undefined;
-			return;
 		}
 	}
 
@@ -56,6 +59,8 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 		}
 		return `RC (${serverName})`;
 	}
+
+	// grc.RemoteControlEvents
 
 	onRCChat(text: string) {
 		this.rcTerminal.write(text);
@@ -102,7 +107,7 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 	}
 
 	onReceiveWeaponScript(name: string, image: string, script: string): void {
-		const uri = `/npcserver/Weapons/${name}`;
+		const uri = `/npcserver/weapons/${name}`;
 
 		const adjustedScript = `//#IMAGE: ${image}\n\n` + script;
 		this.serverExplorer.fileSystem.resolvePromise(uri, adjustedScript);
@@ -114,15 +119,39 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 		this.serverExplorer.fileSystem.resolvePromise(uri, script);
 	}
 
-	onReceiveNPCScript(name: string, script: string): void {
+	onReceiveNpcScript(name: string, script: string): void {
 		const uri = `/npcserver/npcs/${name}`;
-
+		// console.log("here: ", name, uri, script);
 		this.serverExplorer.fileSystem.resolvePromise(uri, script);
 	}
 
-	onReceiveNPCFlags(name: string, flags: string): void {
+	onReceiveNpcAttributes(name: string, content: string): void {
+		const uri = `/npcserver/npcs/${name}.attrs`;
+
+		this.serverExplorer.fileSystem.resolvePromise(uri, content);
+	}
+	
+	onReceiveNpcFlags(name: string, flags: string): void {
 		const uri = `/npcserver/npcs/${name}.flags`;
 
 		this.serverExplorer.fileSystem.resolvePromise(uri, flags);
+	}
+
+	onReceiveFolderConfig(content: string): void {
+		const uri = `/gserver/config/folderconfig`;
+
+		this.serverExplorer.fileSystem.resolvePromise(uri, content);
+	}
+
+	onReceiveServerFlags(content: string): void {
+		const uri = `/gserver/config/serverflags`;
+
+		this.serverExplorer.fileSystem.resolvePromise(uri, content);
+	}
+	
+	onReceiveServerOptions(content: string): void {
+		const uri = `/gserver/config/serveroptions`;
+
+		this.serverExplorer.fileSystem.resolvePromise(uri, content);
 	}
 }
