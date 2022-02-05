@@ -3,6 +3,8 @@
 import * as vscode from 'vscode';
 import { VSCodeContext } from './VSCodeContext';
 
+import * as os from 'os';
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -18,8 +20,13 @@ export function activate(context: vscode.ExtensionContext) {
 		port: vsConfig.get<number>('graalRC.listServer.Port', 14922),
 		account: vsConfig.get<string>('graalRC.login.Account', ""),
 		password: vsConfig.get<string>('graalRC.login.Password', ""),
-		nickname: vsConfig.get<string>('graalRC.login.Nickname', "")
+		nickname: vsConfig.get<string>('graalRC.login.Nickname', ""),
+		saveDir: vsConfig.get<string>('graalRC.DownloadDirectory', "")
 	});
+
+	if (!vsExtContext.config.saveDir) {
+		vsExtContext.config.saveDir = os.tmpdir();
+	}
 
 	// Watch for configuration changes
 	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
@@ -48,6 +55,10 @@ export function activate(context: vscode.ExtensionContext) {
 		if (e.affectsConfiguration('graalRC.login.Nickname')) {
 			vsExtContext.config.nickname = vscode.workspace.getConfiguration().get<string>("graalRC.login.Nickname") || vsExtContext.config.account;
 			vsExtContext.rcSession?.setNickName(vsExtContext.config.nickname);
+		}
+
+		if (e.affectsConfiguration('graalRC.DownloadDirectory')) {
+			vsExtContext.config.saveDir = vscode.workspace.getConfiguration().get<string>("graalRC.DownloadDirectory") || vsExtContext.config.saveDir;
 		}
 
 		if (listServerConfigChanged) {

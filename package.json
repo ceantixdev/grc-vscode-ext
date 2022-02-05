@@ -3,7 +3,7 @@
   "displayName": "Graal Remote Control",
   "description": "Graal Reborn Remote Control built into VSCode",
   "publisher": "DevJoey",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "engines": {
     "vscode": "^1.63.0"
   },
@@ -17,6 +17,16 @@
   ],
   "main": "./out/src/extension.js",
   "contributes": {
+    "resourceLabelFormatters": [
+      {
+        "scheme": "grc",
+        "formatting": {
+          "label": "${path}",
+          "separator": "/",
+          "workspaceSuffix": "GitHub"
+        }
+      }
+    ],
     "configuration": {
       "title": "Graal RC",
       "properties": {
@@ -49,6 +59,12 @@
           "default": 14922,
           "description": "Listserver Port",
           "order": 5
+        },
+        "graalRC.DownloadDirectory": {
+          "type": "string",
+          "default": "",
+          "description": "Download directory for file browser operations",
+          "order": 6
         }
       }
     },
@@ -84,6 +100,14 @@
       {
         "command": "serverExplorerView.deleteEntry",
         "title": "Delete"
+      },
+      {
+        "command": "serverExplorerView.addNpc",
+        "title": "Add a NPC",
+        "icon": {
+          "light": "resources/light/document.svg",
+          "dark": "resources/dark/document.svg"
+        }
       },
       {
         "command": "serverExplorerView.viewNpc",
@@ -133,6 +157,11 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "serverExplorerView.addNpc",
+          "when": "view == serverExplorerView && viewItem == npcsfolder",
+          "group": "0_viewnpc@0"
+        },
         {
           "command": "serverExplorerView.viewNpc",
           "when": "view == serverExplorerView && viewItem == npcs",

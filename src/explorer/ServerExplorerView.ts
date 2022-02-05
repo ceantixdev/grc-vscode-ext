@@ -1,5 +1,6 @@
 import path = require('path');
 import * as vscode from 'vscode';
+import { ServerExplorerProvider } from './ServerExplorerProvider';
 import * as types from './types';
 
 function getResourceContextValue(v: types.ResourceType): string | undefined {
@@ -7,47 +8,10 @@ function getResourceContextValue(v: types.ResourceType): string | undefined {
 		case types.ResourceType.file: return "file";
 		case types.ResourceType.folder: return "folder";
 		case types.ResourceType.npcs: return "npcs";
+		case types.ResourceType.npcsfolder: return "npcsfolder";
 		case types.ResourceType.scripts: return "scripts";
 		case types.ResourceType.weapons: return "weapons";
 	}
-}
-
-export interface ServerExplorerProvider {
-	/**
-	 * Retrieve a list of nodes below this resource
-	 * 
-	 * @param resource 
-	 */
-	getChildrenNodes(resource: vscode.Uri): vscode.ProviderResult<types.GTreeNode[]>;
-
-	/**
-	 * Requests a resource from the server explorer. This can be used
-	 * to refresh sub-resources, or request an editor for the resource which
-	 * may be followed by an additional getResource(resource) call for the content
-	 * 
-	 * @param resource 
-	 */
-	getResource(resource: vscode.Uri): void;
-
-	/**
-	 * Requests a resource from the server explorer. This can be used
-	 * to refresh sub-resources, or request an editor for the resource which
-	 * may be followed by an additional getResourceContent(resource) call for the content
-	 * 
-	 * @param resource 
-	 * @returns Uint8Array | Thenable<Uint8Array>
-	 */
-	getResourceContent(resource: vscode.Uri): types.PromiseFn<Uint8Array> | undefined
-
-	/**
-	 * Requests a resource from the server explorer. This can be used
-	 * to refresh sub-resources, or request an editor for the resource which
-	 * may be followed by an additional getResourceContent(resource) call for the content
-	 * 
-	 * @param resource 
-	 * @returns Uint8Array | Thenable<Uint8Array>
-	 */
-	putRequestContent(resource: vscode.Uri, content: Uint8Array): boolean
 }
 
 class ServerExplorerTreeDataProvider implements vscode.TreeDataProvider<types.GTreeNode> {
@@ -78,7 +42,7 @@ class ServerExplorerTreeDataProvider implements vscode.TreeDataProvider<types.GT
 
 	getChildren(element?: types.GTreeNode): vscode.ProviderResult<types.GTreeNode[]> {
 		const uri = element?.resource || vscode.Uri.parse('');
-		return this.dataProvider.getChildrenNodes(uri);
+		return this.dataProvider.getChildren(uri);
 
 		// return element ? this.dataProvider.getChildren(element) : this.dataProvider.roots;
 	}
@@ -99,14 +63,14 @@ export class ServerExplorerView {
 		
 		vscode.commands.registerCommand('serverExplorerView.refresh', () => this.refresh());
 		vscode.commands.registerCommand('serverExplorerView.revealResource', () => this.reveal());
-		vscode.commands.registerCommand('serverExplorerView.openResource', (resource: vscode.Uri) => provider.getResource(resource.with({ query: "open" })));
+		vscode.commands.registerCommand('serverExplorerView.openResource', (resource: vscode.Uri) => provider.headRequest(resource.with({ query: "open" })));
 
 		// Treeview Context-Menu Commands
-		vscode.commands.registerCommand('serverExplorerView.editFlags', (node: types.GTreeNode) => provider.getResource(node.resource.with({ query: "open", path: node.resource.path + ".flags"})));
-		vscode.commands.registerCommand('serverExplorerView.viewNpc', (node: types.GTreeNode) => provider.getResource(node.resource.with({ query: "open", path: node.resource.path + ".attrs"})));
+		vscode.commands.registerCommand('serverExplorerView.editFlags', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "open", path: node.resource.path + ".flags"})));
+		vscode.commands.registerCommand('serverExplorerView.viewNpc', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "open", path: node.resource.path + ".attrs"})));
 
-		vscode.commands.registerCommand('serverExplorerView.editScript', (node: types.GTreeNode) => provider.getResource(node.resource.with({ query: "open"})));
-		vscode.commands.registerCommand('serverExplorerView.deleteEntry', (node: types.GTreeNode) => provider.getResource(node.resource.with({ query: "delete"})));
+		vscode.commands.registerCommand('serverExplorerView.editScript', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "open"})));
+		vscode.commands.registerCommand('serverExplorerView.deleteEntry', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "delete"})));
 	}
 
 	public updateTitle(title: string): void {

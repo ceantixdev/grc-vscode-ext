@@ -1,112 +1,135 @@
-import { Router } from 'tiny-request-router';
-import * as types from './types';
+import { RouteMatch, Router } from 'tiny-request-router';
 import * as vscode from 'vscode';
-import handleScriptRequest from './routes/ScriptRoute';
+import { VSCodeContext } from '../VSCodeContext';
+import ConfigIndexRoute from './routes/ConfigRoute';
+import FileBrowserRoute from './routes/FileBrowserRoute';
+import GServerRoute from './routes/GServerRoute';
 import indexRoute from './routes/IndexRoute';
-import ConfigIndexRoute from './routes/ConfigIndexRoute';
+import NPCServerRoute from './routes/NPCServerRoute';
+import PlayersRoute from './routes/PlayersRoute';
+import ScriptRoute from './routes/ScriptRoute';
+import { ServerExplorerProvider } from "./ServerExplorerProvider";
+import * as types from './types';
 
-import { createContextMenu } from './ServerExplorer';
-import { NPCPropID } from '@xtjoeytx/node-grc/dist/misc/npcs';
+export class ServerExplorerRouter implements ServerExplorerProvider {
+	private router: Router<types.RouteController>;
 
-interface SomeInf {
-	requestGServerConfig(config: string): void
+	constructor(private readonly context: VSCodeContext) {
+		this.router = new Router<types.RouteController>();
+		this.initializeRoutes();
+	}
 
-	requestNpcScript(): void
-}
+	public match(path: string): RouteMatch<types.RouteController> | null {
+		return this.router.match("GET", path);
+	}
 
-function getNpcList(context: types.Context) : types.GTreeNode[] {
-	const npcs = context.rcSession?.nc?.npcs;
-	if (!npcs) {
+	///////////////
+
+	initializeRoutes() {
+		this.router.get("/", indexRoute);
+		this.router.get("/:controller(gserver)", GServerRoute);
+		this.router.get("/:controller(gserver)/:category(config)/:name(.*)?", ConfigIndexRoute);
+		this.router.get("/:controller(gserver)/:category(players)/(.*)", PlayersRoute);
+		this.router.get("/:controller(gserver)/:category(filebrowser)/:path(.*)?", FileBrowserRoute);
+	
+		this.router.get("/:controller(npcserver)", NPCServerRoute);
+		// this.router.get("/:controller(npcserver)/:type(npcs|scripts|weapons)/:name()", ScriptRoute);
+		this.router.get("/:controller(npcserver)/:type(npcs|scripts|weapons)/:name(.*)?", ScriptRoute);
+	}
+
+	///////////////
+
+	getFileStat(resource: vscode.Uri): vscode.FileStat {
+		const match = this.router.match("GET", resource.path);
+		if (match?.handler.getFileStat) {
+			const res = match?.handler.getFileStat({
+				context: this.context,
+				params: match.params,
+				resource,
+			});
+
+			return res;
+		}
+
+		throw vscode.FileSystemError.FileNotFound(resource);
+	}
+
+	getChildren(resource: vscode.Uri): vscode.ProviderResult<types.GTreeNode[]> {
+		const match = this.router.match("GET", resource.path);
+		if (match?.handler.getChildren) {
+			return match.handler.getChildren({
+				context: this.context,
+				params: match.params,
+				resource,
+			});
+		}
+
 		return [];
 	}
 
-	const npcList = npcs.map(n => n.getProp(NPCPropID.NPCPROP_NAME) as string);
-	return createContextMenu(types.ResourceType.npcs, "npcserver/npcs/", npcList);
-}
-
-function getScriptList(context: types.Context) : types.GTreeNode[] {
-	const classes = context.rcSession?.nc?.classes;
-	return createContextMenu(types.ResourceType.scripts, "npcserver/scripts/", classes || []);
-}
-
-function getWeaponList(context: types.Context) : types.GTreeNode[] {
-	const weapons = context.rcSession?.nc?.weapons;
-	return createContextMenu(types.ResourceType.weapons, "npcserver/weapons/", weapons || []);
-}
-
-function setupRouter(contract: SomeInf) {
-
-	const router = new Router<types.RouteController>();
-
-	const handleGetConfig = {
-		getRequest: (req: types.HandlerReq) => {
-			console.log("[handleGetConfig] matched request: ", req.params, req.resource);
-		},
-
-		getRequestContent: (req: types.HandlerReq) => {
-			return undefined;
+	headRequest(resource: vscode.Uri): void {
+		if (resource.scheme !== types.URI_SCHEME) {
+			return;
 		}
-	};
 
-	const handlePlayerRequest = {
-		getRequest: (req: types.HandlerReq) => {
-			console.log("[handlePlayerRequest] matched request: ", req.params, req.resource);
+		console.log("-------BEGIN GET RESOURCE--------");
+		console.log("Received getResource: ", resource);
+
+		const match = this.router.match("GET", resource.path);
+		if (match?.handler.headRequest) {
+			match.handler.headRequest({
+				context: this.context,
+				params: match.params,
+				resource,
+			});
+
+			console.log(`Successfully matched getResource req`, match);
 		}
-	};
-
-	const handleBrowserRequest = {
-		getRequest: (req: types.HandlerReq) => {
-			console.log("[handleBrowserRequest] matched request: ", req.params, req.resource);
+		else {
+			console.log(`Did not match getResource req`);
 		}
-	};
 
-	const handleGserver = {
-		getChildren: (req: types.HandlerReq): vscode.ProviderResult<types.GTreeNode[]> => {
-			return createContextMenu(types.ResourceType.folder, req.resource.path.slice(1), [
-				{resource: "config", label: "Config"},
-				{resource: "players", label: "Players"},
-				{resource: "filebrowser", label: "Filebrowser"}
-			]);
-		},
+		console.log("-------END GET RESOURCE--------");
+	}
 
-		getRequest: (req: types.HandlerReq) => {
-			console.log("[handle-gserver] matched request: ", req.params, req.resource);
-		},
-	};
+	getRequest(resource: vscode.Uri): vscode.ProviderResult<Buffer> {
+		console.log("-------BEGIN GET RESOURCE CONTENT --------");
+		console.log("Received getResourceContent: ", resource);
 
-	const handleNpcserver = {
-		getChildren: (req: types.HandlerReq): vscode.ProviderResult<types.GTreeNode[]> => {
-			return createContextMenu(types.ResourceType.folder, req.resource.path.slice(1), [
-				{resource: "npcs", label: "NPCs"},
-				{resource: "scripts", label: "Scripts"},
-				{resource: "weapons", label: "Weapons"}
-			]);
-		},
-	};
-
-	const handleScriptListing = {
-		getChildren: (req: types.HandlerReq): vscode.ProviderResult<types.GTreeNode[]> => {
-			switch (req.params.type) {
-				case "npcs": return getNpcList(req.context);
-				case "weapons": return getWeaponList(req.context);
-				case "scripts": return getScriptList(req.context);
-				default:
-					return;
-			}
+		const match = this.router.match("GET", resource.path);
+		if (match?.handler.getRequest) {
+			console.log(`Successfully matched getResourceContent req`, match);
+			console.log("-------END GET RESOURCE CONTENT--------");
+			return match.handler.getRequest({
+				context: this.context,
+				params: match.params,
+				resource,
+			});
 		}
-	};
 
-	router.get("/", indexRoute);
-	router.get("/:controller(gserver)", handleGserver);
-	// router.get("/:controller(gserver)/:category(config)", ConfigIndexRoute);
-	router.get("/:controller(gserver)/:category(config)/:name?", ConfigIndexRoute);
-	router.get("/:controller(gserver)/:category(players)/(.*)", handlePlayerRequest);
-	router.get("/:controller(gserver)/:category(filebrowser)/(.*)", handleBrowserRequest);
+		console.log(`Did not match getResourceContent req`);
+		console.log("-------END GET RESOURCE CONTENT--------");
+		throw vscode.FileSystemError.FileNotFound(resource);
+	}
 
-	router.get("/:controller(npcserver)", handleNpcserver);
-	router.get("/:controller(npcserver)/:type(npcs|scripts|weapons)", handleScriptListing);
-	router.get("/:controller(npcserver)/:type(npcs|scripts|weapons)/:name*", handleScriptRequest);
-	return router;
+	putRequest(resource: vscode.Uri, content: Uint8Array): boolean {
+		console.log("-------BEGIN PUT RESOURCE CONTENT --------");
+		console.log("Received putRequestContent: ", resource);
+
+		const match = this.router.match("GET", resource.path);
+		if (match?.handler.putRequest) {
+			match.handler.putRequest({
+				context: this.context,
+				params: match.params,
+				resource,
+			}, content);
+
+			console.log("-------END PUT RESOURCE CONTENT--------");
+			return true;
+		}
+
+		console.log(`Did not match getResourceContent req`);
+		console.log("-------END PUT RESOURCE CONTENT--------");
+		throw vscode.FileSystemError.FileNotFound(resource);
+	}
 }
-
-export default setupRouter;

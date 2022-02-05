@@ -4,17 +4,22 @@ import { RCTerminal } from './rcterminal/RCTerminal';
 import { ServerExplorer } from './explorer/ServerExplorer';
 import { ServerList } from './serverlist/ServerList';
 
-const defaultConfig: grc.ServerlistConfig = {
+const defaultConfig: VSConfiguration = {
 	host: "listserver.graal.in",
 	port: 14922,
 	account: "",
 	password: "",
-	nickname: "unknown"
+	nickname: "unknown",
+	saveDir: ""
+};
+
+export interface VSConfiguration extends grc.ServerlistConfig {
+	saveDir: string
 };
 
 export class VSCodeContext implements grc.RemoteControlEvents {
 	public readonly vsContext: vscode.ExtensionContext;
-	public readonly config: grc.ServerlistConfig;
+	public readonly config: VSConfiguration;
 
 	public readonly rcTerminal: RCTerminal;
 	public readonly serverList: ServerList;
@@ -26,7 +31,7 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 		return this.rcInstance;
 	}
 
-	constructor(context: vscode.ExtensionContext, config: Partial<grc.ServerlistConfig>) {
+	constructor(context: vscode.ExtensionContext, config: Partial<VSConfiguration>) {
 		this.vsContext = context;
 		this.config = { ...defaultConfig, ...config };
 
@@ -57,6 +62,7 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 		if (this.rcInstance) {
 			serverName = "Connected to " + this.rcInstance.server.name;
 		}
+		
 		return `RC (${serverName})`;
 	}
 
@@ -95,7 +101,7 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 	onNCConnected() {
 		console.log("onNCConnected");
 
-		this.rcInstance?.nc?.requestWeaponList();
+		this.rcInstance?.NpcControl?.requestWeaponList();
 	}
 
 	onNCDisconnected() {
@@ -104,54 +110,5 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 
 	onNCChat(text: string) {
 		this.rcTerminal.write(text);
-	}
-
-	onReceiveWeaponScript(name: string, image: string, script: string): void {
-		const uri = `/npcserver/weapons/${name}`;
-
-		const adjustedScript = `//#IMAGE: ${image}\n\n` + script;
-		this.serverExplorer.fileSystem.resolvePromise(uri, adjustedScript);
-	}
-
-	onReceiveClassScript(name: string, script: string): void {
-		const uri = `/npcserver/scripts/${name}`;
-
-		this.serverExplorer.fileSystem.resolvePromise(uri, script);
-	}
-
-	onReceiveNpcScript(name: string, script: string): void {
-		const uri = `/npcserver/npcs/${name}`;
-		// console.log("here: ", name, uri, script);
-		this.serverExplorer.fileSystem.resolvePromise(uri, script);
-	}
-
-	onReceiveNpcAttributes(name: string, content: string): void {
-		const uri = `/npcserver/npcs/${name}.attrs`;
-
-		this.serverExplorer.fileSystem.resolvePromise(uri, content);
-	}
-	
-	onReceiveNpcFlags(name: string, flags: string): void {
-		const uri = `/npcserver/npcs/${name}.flags`;
-
-		this.serverExplorer.fileSystem.resolvePromise(uri, flags);
-	}
-
-	onReceiveFolderConfig(content: string): void {
-		const uri = `/gserver/config/folderconfig`;
-
-		this.serverExplorer.fileSystem.resolvePromise(uri, content);
-	}
-
-	onReceiveServerFlags(content: string): void {
-		const uri = `/gserver/config/serverflags`;
-
-		this.serverExplorer.fileSystem.resolvePromise(uri, content);
-	}
-	
-	onReceiveServerOptions(content: string): void {
-		const uri = `/gserver/config/serveroptions`;
-
-		this.serverExplorer.fileSystem.resolvePromise(uri, content);
 	}
 }
