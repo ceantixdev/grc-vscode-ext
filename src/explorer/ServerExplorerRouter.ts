@@ -39,10 +39,10 @@ export class ServerExplorerRouter implements ServerExplorerProvider {
 
 	///////////////
 
-	getFileStat(resource: vscode.Uri): vscode.FileStat {
+	statRequest(resource: vscode.Uri): vscode.ProviderResult<types.PartialFileStat> {
 		const match = this.router.match("GET", resource.path);
-		if (match?.handler.getFileStat) {
-			const res = match?.handler.getFileStat({
+		if (match?.handler.statRequest) {
+			const res = match?.handler.statRequest({
 				context: this.context,
 				params: match.params,
 				resource,
@@ -51,7 +51,8 @@ export class ServerExplorerRouter implements ServerExplorerProvider {
 			return res;
 		}
 
-		throw vscode.FileSystemError.FileNotFound(resource);
+		return {};
+		// throw vscode.FileSystemError.FileNotFound(resource);
 	}
 
 	getChildren(resource: vscode.Uri): vscode.ProviderResult<types.GTreeNode[]> {

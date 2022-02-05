@@ -46,12 +46,14 @@ export interface ExplorerEntry {
 	isDirectory?: boolean
 }
 
+export type PartialFileStat = Partial<vscode.FileStat>;
+
 export interface RouteController {
-	getFileStat?(req: HandlerReq): vscode.FileStat
 	getChildren?(req: HandlerReq): vscode.ProviderResult<GTreeNode[]>
 	
 	deleteRequest?(req: HandlerReq): void
 	getRequest?(req: HandlerReq): vscode.ProviderResult<Buffer>
 	headRequest?(req: HandlerReq): void
 	putRequest?(req: HandlerReq, content: Uint8Array): void
+	statRequest?(req: HandlerReq): vscode.ProviderResult<PartialFileStat>
 }

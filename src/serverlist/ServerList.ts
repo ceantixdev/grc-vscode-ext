@@ -20,8 +20,6 @@ export class ServerList implements ServerListProvider {
 		vscode.window.showInformationMessage(confirmMsg, ...["Yes", "No"])
 		.then((answer) => {
 			if (answer === "Yes") {
-				console.log(`Connecting to ${server.name}`);
-
 				this.context.connectRemoteControl(server);
 			}
 		});
@@ -41,7 +39,7 @@ export class ServerList implements ServerListProvider {
 
 			return serverListData.filter((v: ServerlistNode) => v.children && v.children.length > 0);
 		}, (err) => {
-			console.log("Error fetching serverlist: ", err);
+			vscode.window.showErrorMessage(`Error fetching serverlist: ${err}`);
 			return [];
 		});
 	}

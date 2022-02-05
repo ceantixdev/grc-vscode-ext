@@ -35,29 +35,18 @@ export class ServerExplorerFileSystem implements vscode.FileSystemProvider {
     }
    
     stat(uri: vscode.Uri): vscode.FileStat | Thenable<vscode.FileStat> {
-        let fileStat: vscode.FileStat = {
+        const fileStat: vscode.FileStat = {
             type: vscode.FileType.File,
             ctime: Date.now(),
             mtime: Date.now(),
             size: 0
         };
 
-        console.log(`Queried for ${uri}: ${uri.path}`, uri);
-
-        if (uri.path.endsWith(".attrs")) {
-            fileStat.permissions = vscode.FilePermission.Readonly;
-        }
-        
-        if (uri.path.endsWith("npclevellist")) {
-            fileStat.permissions = vscode.FilePermission.Readonly;
-        }
-
-        return fileStat;
+        const result = this.provider.statRequest(uri);
+		return {...fileStat, ...result };
     }
 
     readFile(uri: vscode.Uri): Uint8Array | Thenable<Uint8Array> {
-        console.log("readFile: ", uri);
-
         if (!this.context.rcSession) {
             throw vscode.FileSystemError.Unavailable(uri);
         }
@@ -74,8 +63,6 @@ export class ServerExplorerFileSystem implements vscode.FileSystemProvider {
     }
 
     writeFile(uri: vscode.Uri, content: Uint8Array, options: { create: boolean; overwrite: boolean; }): void | Thenable<void> {
-        console.log("writeFile: ", uri);
-
         if (!this.context.rcSession) {
             throw vscode.FileSystemError.Unavailable(uri);
         }

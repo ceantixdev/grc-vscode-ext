@@ -14,6 +14,18 @@ interface HandlerReq extends types.HandlerReq {
 }
 
 class ScriptRoute implements types.RouteController {
+	statRequest(req: types.HandlerReq): Partial<vscode.FileStat> {
+        console.log("Getfilestat called");
+
+        const fileStat: Partial<vscode.FileStat> = {};
+
+		if (req.resource.path.endsWith(".attrs")) {
+			fileStat.permissions = vscode.FilePermission.Readonly;
+		}
+		
+        return fileStat;
+    }
+
 	getChildren(req: types.HandlerReq): vscode.ProviderResult<types.GTreeNode[]> {
 		if (!req.context.rcSession?.NpcControl) {
 			return;

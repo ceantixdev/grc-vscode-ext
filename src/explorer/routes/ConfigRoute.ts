@@ -10,17 +10,12 @@ enum UriConstants {
 }
 
 class ConfigIndexRoute implements types.RouteController {
-    getFileStat(req: types.HandlerReq): vscode.FileStat {
-        console.log("Getfilestat called");
+    statRequest(req: types.HandlerReq): Partial<vscode.FileStat> {
+        console.log("Getfilestat called", req);
+        
+        const fileStat: Partial<vscode.FileStat> = {};
 
-        let fileStat: vscode.FileStat = {
-            type: vscode.FileType.File,
-            ctime: Date.now(),
-            mtime: Date.now(),
-            size: 0
-        };
-
-        if (req.resource.path.endsWith("folderconfig")) {
+        if (req.params.name === UriConstants.NpcLevelList) {
             fileStat.permissions = vscode.FilePermission.Readonly;
         }
 
@@ -28,8 +23,6 @@ class ConfigIndexRoute implements types.RouteController {
     }
 
     getChildren(req: types.HandlerReq): vscode.ProviderResult<types.GTreeNode[]> {
-        console.log("[ConfigIndexRoute] list request: ", req.params, req.resource);
-
         const items = [];
 
         if (req.context.rcSession) {
@@ -38,7 +31,7 @@ class ConfigIndexRoute implements types.RouteController {
             items.push({resource: UriConstants.ServerOptions, label: "Server Options"});
 
             if (req.context.rcSession.NpcControl) {
-                items.push({resource: UriConstants.NpcLevelList, label: "NPC LevelList"});
+                items.push({resource: UriConstants.NpcLevelList, label: "NPC Level List"});
             }
         }
 

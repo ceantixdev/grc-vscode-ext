@@ -38,4 +38,14 @@ export interface ServerExplorerProvider {
 	 * @returns Uint8Array | Thenable<Uint8Array>
 	 */
 	putRequest(resource: vscode.Uri, content: Uint8Array): boolean;
+
+	/**
+	 * Stat request from the server explorer. This can be used to set file type, creation,
+	 * mod time, file size and permissions. 
+	 *
+	 * @param resource
+	 * @returns types.PartialFileStat | Thenable<types.PartialFileStat>
+	 */
+	statRequest(resource: vscode.Uri): vscode.ProviderResult<types.PartialFileStat>;
+
 }
