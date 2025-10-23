@@ -1,7 +1,7 @@
 {
-  "name": "vscode-grc",
-  "displayName": "Graal Remote Control",
-  "description": "Graal Remote Control built into VSCode",
+  "name": "vscode-grc-official",
+  "displayName": "Graal Offical Remote Control",
+  "description": "Graal Remote Control built into VSCode Originally Coded by Joey Updated by Ceantix",
   "publisher": "Ceantix",
   "version": "0.1.0",
   "repository":{
