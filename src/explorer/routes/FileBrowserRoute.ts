@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as types from '../types';
-import * as grc from '@xtjoeytx/node-grc';
+import * as grc from '@ceantixdev/node-grc';
 import { createContextMenu } from '../ServerExplorer';
 
 import * as fs from 'fs';

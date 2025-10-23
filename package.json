@@ -1,9 +1,13 @@
 {
   "name": "vscode-grc",
   "displayName": "Graal Remote Control",
-  "description": "Graal Reborn Remote Control built into VSCode",
-  "publisher": "DevJoey",
-  "version": "0.0.5",
+  "description": "Graal Remote Control built into VSCode",
+  "publisher": "Ceantix",
+  "version": "0.1.0",
+  "repository":{
+    "type": "git",
+    "url": "https://github.com/ceantixdev/grc-vscode-ext.git"
+  },
   "engines": {
     "vscode": "^1.63.0"
   },
@@ -272,6 +276,7 @@
   },
   "dependencies": {
     "@ceantixdev/node-grc": "1.2.0",
+    "@vscode/vsce": "^3.6.2",
     "tiny-request-router": "^1.2.2"
   }
 }

@@ -1,4 +1,4 @@
-import * as grc from '@xtjoeytx/node-grc';
+import * as grc from '@ceantixdev/node-grc';
 import * as vscode from 'vscode';
 import { VSCodeContext } from "../VSCodeContext";
 import { ServerlistNode } from "./ServerListNode";

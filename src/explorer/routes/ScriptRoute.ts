@@ -1,4 +1,4 @@
-import { NPCPropID } from '@xtjoeytx/node-grc/dist/misc/npcs';
+import { NPCPropID } from '@ceantixdev/node-grc/dist/misc/npcs';
 import * as vscode from 'vscode';
 import { splitWeaponScript } from '../../utils';
 import { createContextMenu } from '../ServerExplorer';
