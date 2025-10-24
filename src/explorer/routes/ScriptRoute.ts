@@ -126,7 +126,7 @@ class ScriptRoute implements types.RouteController {
 				vscode.window.showTextDocument(req.resource, {
 					preview: false,
 				})
-				.then((v) => vscode.languages.setTextDocumentLanguage(v.document, "csharp"));
+				.then((v) => vscode.languages.setTextDocumentLanguage(v.document, "graalscript"));
 
 				return;
 			}
@@ -134,7 +134,7 @@ class ScriptRoute implements types.RouteController {
 	}
 
 	getRequest(req: types.HandlerReq): vscode.ProviderResult<Buffer> {
-		console.log("[handleScriptRequest] getRequestContent: ", req.params, req.resource);
+		//console.log("[handleScriptRequest] getRequestContent: ", req.params, req.resource);
 
 		switch (req.params.type.toLowerCase()) {
 			case "npcs": {

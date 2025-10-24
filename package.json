@@ -3,7 +3,7 @@
   "displayName": "Graal Offical Remote Control",
   "description": "Graal Remote Control built into VSCode Originally Coded by Joey Updated by Ceantix",
   "publisher": "Ceantix",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/ceantixdev/grc-vscode-ext.git"
@@ -20,6 +20,10 @@
     "onView:serverListView"
   ],
   "main": "./out/src/extension.js",
+  "extensionDependencies": [
+    "ruanfernandes.graalscript-hl",
+    "ruanfernandes.graalscript-lsp"
+  ],
   "contributes": {
     "resourceLabelFormatters": [
       {
