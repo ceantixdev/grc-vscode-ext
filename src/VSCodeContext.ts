@@ -69,7 +69,19 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 	// grc.RemoteControlEvents
 
 	onRCChat(text: string) {
-		this.rcTerminal.write(text);
+		// Create a new Date object
+		const now = new Date();
+
+		// Get hours, minutes, and seconds, and pad them with a '0' if they are single digits
+		const hours = now.getHours().toString().padStart(2, '0');
+		const minutes = now.getMinutes().toString().padStart(2, '0');
+		const seconds = now.getSeconds().toString().padStart(2, '0');
+
+		// Create the timestamp string
+		const timestamp = `[${hours}:${minutes}:${seconds}]`;
+		
+		// Write the timestamp and the original text
+		this.rcTerminal.write(`${timestamp} ${text}`);
 	}
 
 	onRCConnected(instance: grc.RCInterface) {
@@ -109,6 +121,18 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 	}
 
 	onNCChat(text: string) {
-		this.rcTerminal.write(text);
+		// Create a new Date object
+		const now = new Date();
+
+		// Get hours, minutes, and seconds, and pad them with a '0' if they are single digits
+		const hours = now.getHours().toString().padStart(2, '0');
+		const minutes = now.getMinutes().toString().padStart(2, '0');
+		const seconds = now.getSeconds().toString().padStart(2, '0');
+
+		// Create the timestamp string
+		const timestamp = `[${hours}:${minutes}:${seconds}]`;
+		
+		// Write the timestamp and the original text
+		this.rcTerminal.write(`${timestamp} ${text}`);
 	}
 }

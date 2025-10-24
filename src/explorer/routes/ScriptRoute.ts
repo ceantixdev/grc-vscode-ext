@@ -153,7 +153,7 @@ class ScriptRoute implements types.RouteController {
 	}
 
 	getRequest(req: types.HandlerReq): vscode.ProviderResult<Buffer> {
-		//console.log("[handleScriptRequest] getRequestContent: ", req.params, req.resource);
+		console.log("[handleScriptRequest] getRequestContent: ", req.params, req.resource);
 
 		switch (req.params.type.toLowerCase()) {
 			case "npcs": {
