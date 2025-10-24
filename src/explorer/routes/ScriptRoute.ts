@@ -76,6 +76,12 @@ class ScriptRoute implements types.RouteController {
 
                 const rootPrefix = "npcserver/weapons/";
 
+				// If the user clicked the root "Weapons" node, clear the cache
+                if (prefix === rootPrefix) {
+                    console.log("[Weapons Cache] Root node clicked. Clearing cache for refresh.");
+                    weaponListPromise = null;
+                }
+
                 // 2. Get the master weapon list (from cache or fetch it once)
                 if (!weaponListPromise) {
                     
