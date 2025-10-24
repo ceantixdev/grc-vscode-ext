@@ -73,6 +73,12 @@
           "default": "",
           "description": "Download directory for file browser operations",
           "order": 6
+        },
+        "graalRC.enableTimestamp": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable timestamping in RC Chat",
+          "order": 7
         }
       }
     },

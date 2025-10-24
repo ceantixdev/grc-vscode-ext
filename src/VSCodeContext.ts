@@ -69,6 +69,11 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 	// grc.RemoteControlEvents
 
 	onRCChat(text: string) {
+		const vsConfig = vscode.workspace.getConfiguration();
+		if(vsConfig.get<boolean>('graalRC.enableTimestamp') === false) {
+			this.rcTerminal.write(text);
+			return;
+		}
 		// Create a new Date object
 		const now = new Date();
 
@@ -121,6 +126,11 @@ export class VSCodeContext implements grc.RemoteControlEvents {
 	}
 
 	onNCChat(text: string) {
+		const vsConfig = vscode.workspace.getConfiguration();
+		if(vsConfig.get<boolean>('graalRC.enableTimestamp') === false) {
+			this.rcTerminal.write(text);
+			return;
+		}
 		// Create a new Date object
 		const now = new Date();
 
