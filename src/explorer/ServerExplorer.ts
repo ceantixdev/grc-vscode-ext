@@ -7,6 +7,7 @@ import * as types from './types';
 
 export function createContextMenu(type: types.ResourceType, prefix: string, list: Iterable<types.ExplorerEntry | string>) {
 	const nodes: types.GTreeNode[] = [];
+	let nodeSet = new Set<string>();
 
 	if (prefix && !prefix.endsWith("/")) {
 		prefix += "/";
@@ -15,6 +16,22 @@ export function createContextMenu(type: types.ResourceType, prefix: string, list
 	for (const item of list) {
 		const isString = typeof item === 'string';
 		const obj: types.ExplorerEntry = isString ? { resource: item } : item;
+
+		// if its a weapon with a path check if we need to make a folder node
+		if(prefix.split("/")[1] === "weapons" && obj.resource.split("/").length > 1){
+			//make weapon folder node
+			const folderName = obj.resource.split("/")[0] + "/";
+			if(!nodeSet.has(folderName)){
+				nodes.push({
+					isDirectory: true,
+					type: types.ResourceType.folder,
+					resource: vscode.Uri.parse(`${types.URI_SCHEME}:///${prefix}${folderName}`, true),
+					label: folderName.slice(0, -1),
+				});
+				nodeSet.add(folderName);
+			}
+			continue;
+		}4
 
 		nodes.push({
 			isDirectory: type === types.ResourceType.folder,

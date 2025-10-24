@@ -13,6 +13,8 @@ interface HandlerReq extends types.HandlerReq {
 	params: Params
 }
 
+let weaponListPromise: Promise<Iterable<types.ExplorerEntry | string>> | null = null;
+
 class ScriptRoute implements types.RouteController {
 	statRequest(req: types.HandlerReq): Partial<vscode.FileStat> {
         console.log("Getfilestat called");
@@ -42,9 +44,73 @@ class ScriptRoute implements types.RouteController {
 			}
 
 			case "weapons": {
-				return req.context.rcSession.NpcControl.requestWeaponList()
-					.then((v) => createContextMenu(types.ResourceType.weapons, "npcserver/weapons/", v));
-			}
+                // 1. Get prefix from the resource path
+                let prefix = req.resource.path;
+
+                // Sanitize the prefix
+                if (prefix.startsWith("/")) {
+                    prefix = prefix.substring(1);
+                }
+                
+                // This handles clicks on the root of your provider
+                if (prefix === "" || prefix === "npcserver/weapons") {
+                    prefix = "npcserver/weapons"; 
+                }
+
+                if (!prefix.endsWith("/")) {
+                    prefix += "/"; // "npcserver/weapons/"
+                }
+
+                const rootPrefix = "npcserver/weapons/";
+
+                // 2. Get the master weapon list (from cache or fetch it once)
+                if (!weaponListPromise) {
+                    
+                    weaponListPromise = req.context.rcSession.NpcControl.requestWeaponList()
+                        .catch(err => {
+                            console.error("[Weapons Cache] Fetch failed, resetting cache:", err);
+                            weaponListPromise = null;
+                            throw err; 
+                        });
+                }
+
+                // 3. Use the cached promise
+                return weaponListPromise.then(masterList => {
+                    let subfolder = "";
+
+                    // This logic now works because 'prefix' is correct
+                    if (prefix.length > rootPrefix.length) {
+                        subfolder = prefix.substring(rootPrefix.length); // e.g., "-Player/"
+                    }
+
+                    let filteredList: (types.ExplorerEntry | string)[] = [];
+
+                    if (subfolder === "") {
+                        // Root request, use full list
+                        filteredList = [...masterList];
+                    } else {
+                        // Subfolder request, filter the list
+                        for (const item of masterList) {
+                            const resourceName = typeof item === 'string' ? item : item.resource;
+                            
+                            if (resourceName.startsWith(subfolder)) {
+                                const newItemName = resourceName.substring(subfolder.length);
+                                if (newItemName.length === 0) continue; 
+
+                                if (typeof item === 'string') {
+                                    filteredList.push(newItemName);
+                                } else {
+                                    filteredList.push({ ...item, resource: newItemName });
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 4. Create nodes
+                    // This now passes the correct prefix and the correctly filtered list
+                    return createContextMenu(types.ResourceType.weapons, prefix, filteredList);
+                });
+            }
 
 			default: {
 				return;
