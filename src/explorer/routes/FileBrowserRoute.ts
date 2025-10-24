@@ -30,6 +30,8 @@ class FileBrowserRoute implements types.RouteController {
             req.context.rcSession?.FileBrowser.cd(req.params.path).then((res: grc.DirectoryListing) => {
                 const items: types.ExplorerEntry[] = [];
 
+                res.fileList.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+
                 for (const item of res.fileList) {
                     items.push({
                         resource: item.name,

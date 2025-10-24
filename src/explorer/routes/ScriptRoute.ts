@@ -36,11 +36,24 @@ class ScriptRoute implements types.RouteController {
 		switch (req.params.type) {
 			case "npcs": {
 				const npcList = req.context.rcSession.NpcControl.npcs.map(n => n.getProp(NPCPropID.NPCPROP_NAME) as string);
+				
+				npcList.sort((a, b) =>
+					a.localeCompare(b, undefined, { sensitivity: 'base' })
+				);
+
 				return createContextMenu(types.ResourceType.npcs, "npcserver/npcs/", npcList);
 			}
 
 			case "scripts": {
-				return createContextMenu(types.ResourceType.scripts, "npcserver/scripts/", req.context.rcSession.NpcControl.classes);
+				const classList = [...req.context.rcSession.NpcControl.classes];
+
+				classList.sort((a, b) => 
+                    a.localeCompare(b, undefined, { sensitivity: 'base' })
+                );
+
+
+
+				return createContextMenu(types.ResourceType.scripts, "npcserver/scripts/", classList);
 			}
 
 			case "weapons": {
@@ -106,6 +119,12 @@ class ScriptRoute implements types.RouteController {
                         }
                     }
                     
+					filteredList.sort((a, b) => {
+						const nameA = typeof a === 'string' ? a : a.resource;
+						const nameB = typeof b === 'string' ? b : b.resource;
+						return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+					});
+
                     // 4. Create nodes
                     // This now passes the correct prefix and the correctly filtered list
                     return createContextMenu(types.ResourceType.weapons, prefix, filteredList);
