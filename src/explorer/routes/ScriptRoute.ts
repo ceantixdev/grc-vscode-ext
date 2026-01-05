@@ -187,9 +187,13 @@ class ScriptRoute implements types.RouteController {
 				vscode.window.showInputBox({
 					placeHolder: "Enter script name",
 					prompt: "Enter the name of the new script"
-				}).then(name => {
+				}).then(async name => {
 					if (name) {
-						req.context.rcSession?.NpcControl?.setClassScript(name, "");
+						const promise = req.context.rcSession?.NpcControl?.setClassScript(name, "// Created with VSCode GRC by Joey and Ceantix");
+						// Optimistic update in case the library isn't updated or we want instant feedback
+						req.context.rcSession?.NpcControl?.classes.add(name);
+						
+						if (promise) await promise;
 						vscode.commands.executeCommand('serverExplorerView.refresh');
 					}
 				});
@@ -201,13 +205,17 @@ class ScriptRoute implements types.RouteController {
 				const name = req.params.name;
 
 				vscode.window.showInformationMessage(`Are you sure you want to delete ${name}?`, "Yes", "No")
-				.then(answer => {
+				.then(async answer => {
 					if (answer === "Yes") {
 						if (type === "weapons") {
 							req.context.rcSession?.NpcControl?.deleteWeapon(name);
 							weaponListPromise = null;
 						} else if (type === "scripts") {
-							req.context.rcSession?.NpcControl?.deleteClass(name);
+							const promise = req.context.rcSession?.NpcControl?.deleteClass(name);
+							// Optimistic update
+							req.context.rcSession?.NpcControl?.classes.delete(name);
+
+							if (promise) await promise;
 						} else if (type === "npcs") {
 							vscode.window.showErrorMessage("Deleting NPCs is not supported yet.");
 							return;
