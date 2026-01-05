@@ -21,7 +21,9 @@ export enum ResourceType {
 	npcsfolder = 2,
 	npcs = 3,
 	scripts = 4,
-	weapons = 5
+	weapons = 5,
+	scriptsfolder = 6,
+	weaponsfolder = 7
 }
 
 export enum FolderType {

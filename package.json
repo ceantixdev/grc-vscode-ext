@@ -132,6 +132,22 @@
         }
       },
       {
+        "command": "serverExplorerView.addWeapon",
+        "title": "Add a Weapon",
+        "icon": {
+          "light": "resources/light/document.svg",
+          "dark": "resources/dark/document.svg"
+        }
+      },
+      {
+        "command": "serverExplorerView.addScript",
+        "title": "Add a Script",
+        "icon": {
+          "light": "resources/light/document.svg",
+          "dark": "resources/dark/document.svg"
+        }
+      },
+      {
         "command": "serverExplorerView.editScript",
         "title": "Edit Script",
         "icon": {
@@ -202,6 +218,11 @@
           "group": "1_viewnpc@1"
         },
         {
+          "command": "serverExplorerView.addWeapon",
+          "when": "view == serverExplorerView && viewItem == weaponsfolder",
+          "group": "0_viewwep@0"
+        },
+        {
           "command": "serverExplorerView.editScript",
           "when": "view == serverExplorerView && viewItem == weapons",
           "group": "0_viewwep@0"
@@ -210,6 +231,11 @@
           "command": "serverExplorerView.deleteEntry",
           "when": "view == serverExplorerView && viewItem == weapons",
           "group": "0_viewwep@1"
+        },
+        {
+          "command": "serverExplorerView.addScript",
+          "when": "view == serverExplorerView && viewItem == scriptsfolder",
+          "group": "0_viewscript@0"
         },
         {
           "command": "serverExplorerView.editScript",

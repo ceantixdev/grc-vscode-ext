@@ -7,8 +7,8 @@ class NPCServerRoute implements types.RouteController {
 	getChildren(req: types.HandlerReq): vscode.ProviderResult<types.GTreeNode[]> {
 		return createContextMenu(types.ResourceType.folder, req.resource.path.slice(1), [
 			{resource: "npcs", label: "NPCs", isDirectory: true, type: types.ResourceType.npcsfolder},
-			{resource: "scripts", label: "Scripts"},
-			{resource: "weapons", label: "Weapons"}
+			{resource: "scripts", label: "Scripts", isDirectory: true, type: types.ResourceType.scriptsfolder},
+			{resource: "weapons", label: "Weapons", isDirectory: true, type: types.ResourceType.weaponsfolder}
 		]);
 	}
 

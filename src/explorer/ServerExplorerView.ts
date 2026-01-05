@@ -11,6 +11,8 @@ function getResourceContextValue(v: types.ResourceType): string | undefined {
 		case types.ResourceType.npcsfolder: return "npcsfolder";
 		case types.ResourceType.scripts: return "scripts";
 		case types.ResourceType.weapons: return "weapons";
+		case types.ResourceType.scriptsfolder: return "scriptsfolder";
+		case types.ResourceType.weaponsfolder: return "weaponsfolder";
 	}
 }
 
@@ -69,6 +71,8 @@ export class ServerExplorerView {
 		vscode.commands.registerCommand('serverExplorerView.editFlags', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "open", path: node.resource.path + ".flags"})));
 		vscode.commands.registerCommand('serverExplorerView.viewNpc', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "open", path: node.resource.path + ".attrs"})));
 
+		vscode.commands.registerCommand('serverExplorerView.addWeapon', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "createWeapon"})));
+		vscode.commands.registerCommand('serverExplorerView.addScript', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "createScript"})));
 		vscode.commands.registerCommand('serverExplorerView.editScript', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "open"})));
 		vscode.commands.registerCommand('serverExplorerView.deleteEntry', (node: types.GTreeNode) => provider.headRequest(node.resource.with({ query: "delete"})));
 	}

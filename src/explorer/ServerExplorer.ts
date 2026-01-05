@@ -24,7 +24,7 @@ export function createContextMenu(type: types.ResourceType, prefix: string, list
 			if(!nodeSet.has(folderName)){
 				nodes.push({
 					isDirectory: true,
-					type: types.ResourceType.folder,
+					type: types.ResourceType.weaponsfolder,
 					resource: vscode.Uri.parse(`${types.URI_SCHEME}:///${prefix}${folderName}`, true),
 					label: folderName.slice(0, -1),
 				});

@@ -155,6 +155,46 @@ class ScriptRoute implements types.RouteController {
 
 				return;
 			}
+
+			case "createWeapon": {
+				let prefix = req.resource.path;
+				if (prefix.startsWith("/")) prefix = prefix.substring(1);
+				
+				const rootPrefix = "npcserver/weapons/";
+				let subfolder = "";
+				if (prefix.startsWith(rootPrefix)) {
+					subfolder = prefix.substring(rootPrefix.length);
+				}
+				if (subfolder.length > 0 && !subfolder.endsWith("/")) {
+					subfolder += "/";
+				}
+
+				vscode.window.showInputBox({
+					placeHolder: "Enter weapon name",
+					prompt: "Enter the name of the new weapon",
+					value: subfolder
+				}).then(name => {
+					if (name) {
+						req.context.rcSession?.NpcControl?.setWeaponScript(name, "", "");
+						weaponListPromise = null;
+						vscode.commands.executeCommand('serverExplorerView.refresh');
+					}
+				});
+				return;
+			}
+
+			case "createScript": {
+				vscode.window.showInputBox({
+					placeHolder: "Enter script name",
+					prompt: "Enter the name of the new script"
+				}).then(name => {
+					if (name) {
+						req.context.rcSession?.NpcControl?.setClassScript(name, "");
+						vscode.commands.executeCommand('serverExplorerView.refresh');
+					}
+				});
+				return;
+			}
 		}
 	}
 
