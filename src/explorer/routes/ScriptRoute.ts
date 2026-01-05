@@ -195,6 +195,28 @@ class ScriptRoute implements types.RouteController {
 				});
 				return;
 			}
+
+			case "delete": {
+				const type = req.params.type.toLowerCase();
+				const name = req.params.name;
+
+				vscode.window.showInformationMessage(`Are you sure you want to delete ${name}?`, "Yes", "No")
+				.then(answer => {
+					if (answer === "Yes") {
+						if (type === "weapons") {
+							req.context.rcSession?.NpcControl?.deleteWeapon(name);
+							weaponListPromise = null;
+						} else if (type === "scripts") {
+							req.context.rcSession?.NpcControl?.deleteClass(name);
+						} else if (type === "npcs") {
+							vscode.window.showErrorMessage("Deleting NPCs is not supported yet.");
+							return;
+						}
+						vscode.commands.executeCommand('serverExplorerView.refresh');
+					}
+				});
+				return;
+			}
 		}
 	}
 
