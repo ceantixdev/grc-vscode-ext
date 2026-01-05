@@ -46,6 +46,11 @@ export class RCTerminal implements RCTerminalEvents {
 	}
 	
 	onTerminalInput(text: string): void {
+		if (text.trim() === "/clear") {
+			this.clear();
+			return;
+		}
+
 		this.context.rcSession?.sendRCChat(text);
 	}
 
