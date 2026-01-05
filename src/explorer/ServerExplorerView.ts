@@ -35,8 +35,8 @@ class ServerExplorerTreeDataProvider implements vscode.TreeDataProvider<types.GT
 				title: 'Open Resource'
 			},
 			iconPath: {
-				light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
-				dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
+				light: vscode.Uri.file(path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg')),
+				dark: vscode.Uri.file(path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg'))
 			},
 			contextValue: getResourceContextValue(element.type)
 		};
